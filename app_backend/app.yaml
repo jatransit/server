@@ -1,0 +1,59 @@
+application: jatransit
+version: server
+runtime: python27
+api_version: 1
+threadsafe: yes
+module: default
+
+builtins:
+- remote_api: on
+- deferred: on
+- appstats: on
+
+handlers:
+- url: /(.*\.(appcache|manifest))
+  mime_type: text/cache-manifest
+  static_files: \1
+  upload: (.*\.(appcache|manifest))
+  expiration: "0m"
+ 
+- url: /p/
+  static_dir: static/
+  expiration: 1000d
+  
+- url: /favicon.ico
+  static_files: static/images/favicon.ico
+  upload: static/images/favicon.ico  
+
+- url: /robots.txt
+  static_files: static/robots.txt
+  upload: static/robots.txt
+
+
+
+- url: .*  # This regex directs all routes to main.app
+  script: main.app
+  
+libraries:
+- name: jinja2
+  version: 2.6
+  
+skip_files:
+- ^(.*/)?#.*#
+- ^(.*/)?.*/RCS/.*
+- ^(.*/)?.*\.bak$
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?.*~
+- ^(.*/)?Icon\r
+- ^(.*/)?\..*
+- ^(.*/)?app\.yaml
+- ^(.*/)?app\.yml
+- ^(.*/)?index\.yaml
+- ^(.*/)?index\.yml
+- ^lib/.*
+- ^static/dst/.*
+- ^static/ext/coffee/.*
+- ^static/ext/css/.*
+- ^static/ext/js/.*
+- ^static/ext/less/.*
+- ^static/src/.*

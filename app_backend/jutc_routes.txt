@@ -1,0 +1,93 @@
+1,Hellshire,Marcus Garvey Drive,City,regular
+1A,Hellshire,Hagley Pk Road,Half Way Tree,regular
+3A,Christian Gardens,Gregory Pk./Hagley Pk,. Road,Half Way Tree,regular
+3,Christian Gardens,Gregory Pk./Marcus Garvey Drive,City,regular
+4,Christian Gardens,Marcus Garvey Drive/Slipe Road,Cross Roads,regular
+6,Greater Portmore,Gregory Park,Spanish Town,regular
+7A,Waterford,Hagley Pk Road,Half Way Tree,regular
+7,Waterford,Marcus Garvey Drive,City,regular
+8,Garveymeade,Westchester/Marcus Garvey Dr.,City,regular
+8A,Garveymeade,Westchester/Hagley Pk Road,Half Way Tree,regular
+12A,Naggo Head,Hagley Pk. Road,New Kingston,regular
+12,Naggo Head,Southboro/Cumberland/Marcus Garvey Dr.,City,regular
+16A,Greater Portmore,Gregory Pk/Washington Blvd.,Cross Roads,regular
+16B,Greater Portmore,Gregory Pk/Washington Blvd.,Constant Spring,regular
+16,Greater Portmore,Portmore Pines/Marcus Garvey Dr.,Cross Roads,regular
+17,Greater Portmore,S.E. 4TH. St./Marcus Garvey Dr.,City,regular
+17A,Greater Portmore,S.E. 4TH.St./Hagley Pk. Road,Half Way Tree,regular
+18,Greater Portmore,Old Braeton Road/Marcus Garvey Dr.,City,regular
+18A,Greater Portmore,Old Braeton Road/Hagley Pk. Road,Half Way Tree,regular
+19A,Greater Portmore,S.E. Mid St./Hagley Pk. Road,Papine,regular
+20,Greater Portmore,Portmore Pines/Marcus Garvey Dr.,City,regular
+20A,Greater Portmore,Portmore Pines/Hagley Park Road,Half Way Tree,regular
+101,Greater Portmore,Bus for the Disabled,Constant Spring,regular
+21,Spanish Town,Half Way Tree,Cross Roads,regular
+21 EXP,Spanish Town,Half Way Tree,Cross Roads,regular
+21A,Spanish Town,New Kgn.,Cross Roads,regular
+21A EXP,Spanish Town,New Kgn.,Cross Roads,regular
+21B,Spanish Town,Washington Blvd,Half Way Tree,regular
+21B EXP,Spanish Town,Washington Blvd,Half Way Tree,regular
+22,Spanish Town,Spanish Town Road,City,regular
+22A,Spanish Town,Marcus Garvey Dr.,City,regular
+30,Pembroke Hall,Waltham Pk. Road,City,regular
+31,Chancery Street,Spanish Town Road,City,regular
+31A,Chancery Street,Marcus Garvey Dr.,City,regular
+32,Duhaney Pk.,Half Way Tree,City,regular
+32A,Duhaney Pk.,Dunrobin Ave.,Half Way Tree,regular
+33,Six Miles,Dunrobin Ave.,City,regular
+44,Havendale,Half Way Tree Road,City,regular
+46,Meadowbrook,Half Way Tree Road,City,regular
+46B,Meadowbrook,Constant Spring Road,Half Way Tree,regular
+47,Chancery Street,Molynes Road,City,regular
+42,Constant Spring,Half Way Tree Road,City,regular
+42A,Constant Spring,Constant Spring Road,Half Way Tree,regular
+49,Norbrook,Half Way Tree Road,City,regular
+49A,Norbrook,Constant Spring,Half Way Tree,regular
+52,Golden Spring,Half Way Tree Road,City,regular
+52A,Golden Spring,Constant Spring,Half Way Tree,,regular
+53,Above Rocks,Stony Hill,Half Way Tree,regular
+53A,Above Rocks,Constant Spring,Constant Spring,regular
+54,Border,Half Way Tree Road,City,regular
+54A,Border,Constant Spring,Half Way Tree,regular
+60,Papine,Marescaux Road,City,regular
+61,Gordon Town,Marescaux Road,City,regular
+66,Hermitage,South Camp Road,City,regular
+68,Papine,Hope Pasture/Old Hope Road/Slipe Road,City,regular
+72,August Town,Mona Road,Half Way Tree,regular
+74,Barbican,Half Way Tree,City,regular
+76,Barbican,New Kgn.,City,regular
+102,Harbour View,Half Way Tree,August Town,regular
+51,Three Miles,Hagley Park Road,Half Way Tree,regular
+70,Three Miles,Hagley Park Road,Papine,regular
+75,Six Miles,Molynes Road,Papine,regular
+73A,Papine,Hagley Park Road,City,regular
+73B,Papine,South Camp Road,City,regular
+77,August Town,Mountain View Ave.,City,regular
+78,August Town,Old Hope Road/Slipe Road,City,regular
+81,Rollington Town,North St.,City,regular
+82,Waterhouse,Bayfarm Road,Cross Roads,regular
+83,Half Way Tree,Mountain View Ave.,City,regular
+84,Norman Gardens,Windward Road,City,regular
+85,Rennock Lodge,Windward Road,City,regular
+85B,Rennock Lodge,Norman Gardens /Manley Meadows,City,regular
+86,Cross Roads,South Camp Road,City,regular
+87,Manley Meadows,Windward Road,City,regular
+88,Cross Roads,Vineyard Town,City,regular
+89,Vineyard Town,Elleston Road,City,regular
+97,Bull Bay,Windward Road,City,regular
+98,Port Royal,Windward Road,City,regular
+99,Harbour View,Windward Road,City,regular
+123,Ensom,Molynes Road,Cross Roads,premium
+295,Harbour View,Rockfort,Half Way Tree,premium
+124,Ebony Vale,New Kingston,City,premium
+303,Christian Gdns.,Waterford,Papine,premium
+125,Green Acres,Molynes Road,Cross Roads,premium
+315,Greater Portmore,Monza/Daytona,City,premium
+126,White Water,Molynes Road,Cross Roads,premium
+316,Greater Portmore,Gregory Park,Cross Roads,premium
+127,Angels Estate,,Eltham,Cross Roads,premium
+318,Greater Portmore,Naggo Head,Cross Roads,premium
+128,Angels Estate,Half Way Tree/Liguanea,Papine,premium
+320,Greater Portmore,Monza/Daytona,Cross Roads,premium
+130,Longville,New Kingston,City,premium
+445,Meadowbrook,Red Hills Road,City,premium
