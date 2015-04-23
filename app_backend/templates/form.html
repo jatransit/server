@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>JaTransit</title>
+
+    <script src="p/js/prefixfree.min.js"></script>
+    <link rel="stylesheet" href="p/css/form.css" />
+    <script src="p/js/jquery.min.js"></script>
+
+</head>
+
+<body>
+
+  <div class="body"></div>
+		<div class="grad"></div>
+		<div class="header">
+			<div>Upload<span>Form</span></div>
+		</div>
+		<br>
+		<div class="uploadform">
+            <form method="post" enctype="multipart/form-data" action="{{ url_for('upload') }}">
+				<select name="uploadType">
+                  <option value="stops">Stops</option>
+                  <option value="routes">Routes</option>
+                  <option value="rcoordinates">Route Coordinates</option>
+                  <option value="buses">Buses</option>
+                </select>
+				<input type="file" name="document"/><br>
+				<input type="submit" value="Upload">
+            </form>
+		</div>
+
+  
+
+</body>
+
+</html>

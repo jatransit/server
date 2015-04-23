@@ -49,8 +49,10 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
     protected int interval  = 20000;
     final String TAG = "JaTransit";
     final String mapType = "JA";
+    protected LatLng currentLocation;
     DecimalFormat df = new DecimalFormat("#.##");
     ScheduledThreadPoolExecutor updater;
+    LocationManager locationManager;
 
     MarkerOptions mOption;
     Random rand = new Random();
@@ -63,7 +65,8 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        LocationManager locationManager = (LocationManager)
+
+        locationManager = (LocationManager)
         getSystemService(Context.LOCATION_SERVICE);
 
         LocationListener locationListener = new AppLocationListener();
@@ -74,7 +77,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                displayToast("Hello World!");
+                displayClosestBus();
             }
         });
 
@@ -87,6 +90,64 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap map) {
         setupMap(map);
     }
+
+
+    public void displayClosestBus()
+    {
+        TrackedBus bus = findNearestBus();
+
+        if(bus != null)
+        {
+
+            bus.getMarker().setTitle("Closest Bus!!");
+            bus.getMarker().showInfoWindow();
+            displayToast("Closest bus found and displayed on map!");
+        }
+    }
+    public TrackedBus findNearestBus()
+    {
+        TrackedBus closest = null;
+        double shortestDistance = 999999999;
+        double distance = 0;
+
+        if(getCurrentLocation() == null)
+        {
+            String locationProvider = LocationManager.NETWORK_PROVIDER; // Or use LocationManager.GPS_PROVIDER
+            Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+            setCurrentLocation(lastKnownLocation);
+
+            if(getCurrentLocation() == null)
+            {
+                displayToast("Please enable GPS!!");
+                return null;
+            }
+        }
+
+
+        for(TrackedBus bus: buses)
+        {
+            distance = calculateDistanceInMeters(getCurrentLocation(),bus.getLocation());
+
+            if( distance < shortestDistance )
+            {
+                closest = bus;
+                shortestDistance = distance;
+            }
+        }
+
+        return  closest;
+    }
+
+    public LatLng getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public void setCurrentLocation(Location currentLocation)
+    {
+        this.currentLocation = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+    }
+
+
 
     public void simulateTracking()
     {
@@ -299,6 +360,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         public void onLocationChanged(Location loc) {
 
             displayToast("Lat: " + loc.getLatitude() + " Log: " + loc.getLongitude() );
+            setCurrentLocation(loc);
         }
 
         @Override
@@ -358,5 +420,18 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         }
     }
 
+    public double calculateDistanceInMeters(LatLng loc1, LatLng loc2)
+    {
+        double lon1 = loc1.longitude;
+        double lat1 = loc1.latitude;
+        double lon2 = loc2.longitude;
+        double lat2 = loc2.latitude;
+
+        double x = Math.toRadians(lon1 - lon2) * Math.cos( Math.toRadians( lat1 ) );
+        double y = Math.toRadians(lat1 - lat2);
+
+        return  6371000.0 * Math.sqrt( x*x + y*y );
+
+    }
 
 }

@@ -6,11 +6,15 @@ import model
 
 from flask import Flask ,Response, jsonify
 from flask import render_template
+from flask import request
+from flask import redirect
+from flask import url_for
 
-from model import route
-from model import stop
+
 from model import jutcRoute
 from model import routeCoordinates
+from model import trackedBus
+from model import stop
 from google.appengine.ext import ndb
 
 
@@ -25,30 +29,110 @@ def home(name=None):
     """ Return template at application root URL."""
     name = "JaTransit"
     return render_template('index.html', name=name)
-
-@app.route('/load_jutc_routes')
-def loadJutcRoutes():
-    results = jutcRoute.query()
-    for result in results:
-        result.key.delete()
-            
-    f= open('jutc_routes.txt','r')
-    for line in f.readlines():
-        nline = line.replace("\n", "")
-        rline = nline.replace("\r", "")
-        qline = rline.replace('\"','')
-        dline = repr(qline.strip())
-        data = rline.split(",")
-        r =  model.jutcRoute(
-            route  = data[0],
-            origin = data[1],
-            via = data[2],
-            destination = data[3],
-            route_type = data[4]
-        )
-        k = r.put()
-    return "Complete"
     
+@app.route('/uploadform')
+def formSubmit():
+    return render_template('form.html')
+    
+@app.route('/upload', methods=['POST'])
+def upload():    
+    uploadtype = request.form['uploadType']
+    file = request.files['document']    
+    
+    if uploadtype == "stops":
+        results = stop.query()
+        for result in results:
+            result.key.delete()
+                
+        for line in file.readlines():
+            nline = line.replace("\n", "")
+            rline = nline.replace("\r", "")
+            qline = rline.replace('\"','')
+            dline = repr(qline.strip())
+            data = rline.split(",")
+            r =  model.stop(
+                stop_id  = data[0],
+                lat = data[1],
+                long = data[2]
+            )
+            k = r.put()
+    elif uploadtype == "routes":
+        results = jutcRoute.query()
+        for result in results:
+            result.key.delete()
+                
+        for line in file.readlines():
+            nline = line.replace("\n", "")
+            rline = nline.replace("\r", "")
+            qline = rline.replace('\"','')
+            dline = repr(qline.strip())
+            data = rline.split(",")
+            r =  model.jutcRoute(
+                route  = data[0],
+                origin = data[1],
+                via = data[2],
+                destination = data[3],
+                route_type = data[4]
+            )
+            k = r.put()
+    elif uploadtype == "rcoordinates":
+        results = routeCoordinates.query()
+        for result in results:
+            result.key.delete()
+        
+        var = 0
+        max = 10
+        index = 1
+                
+        for line in file.readlines():
+            nline = line.replace("\n", "")
+            rline = nline.replace("\r", "")
+            qline = rline.replace('\"','')
+            dline = repr(qline.strip())
+            data = rline.split(",")
+            
+            route_num = data[0]
+            coor = ""
+            posIndex = 0
+            for pos in range(1, len(data), 10):
+                for x in range(pos, pos+10):
+                    if x < len(data) and pos < len(data):
+                        coor += data[x] + ","                
+                    
+                r =  model.routeCoordinates(
+                    route  = route_num,
+                    pos_index = posIndex,
+                    coorList = coor
+                )
+                coor = ""
+                k = r.put()
+                index = index + 1
+                posIndex = posIndex + 1
+            
+    elif uploadtype == "buses":
+        results = trackedBus.query()
+        for result in results:
+            result.key.delete()
+                
+        for line in file.readlines():
+            nline = line.replace("\n", "")
+            rline = nline.replace("\r", "")
+            qline = rline.replace('\"','')
+            dline = repr(qline.strip())
+            data = rline.split(",")
+            r =  model.trackedBus(
+                bus_id  = data[0],
+                route_id = data[1],
+                lat = data[2],
+                long = data[3],
+                velocity = data[4]
+            )
+            k = r.put()
+    
+    
+    return "Complete"
+
+
 @app.route('/routes')
 def getRoutes():
     results = jutcRoute.query()
@@ -93,71 +177,27 @@ def searchRoute(query=None):
     resp = Response(response=out,status=200,mimetype="application/json")
     return resp
     
-    
-@app.route('/load_coordinates')
-def loadCoordinates():
-    results = routeCoordinates.query()
-    for result in results:
-        result.key.delete()
-            
-    f= open('route_coordinates.txt','r')
-    for line in f.readlines():
-        nline = line.replace("\n", "")
-        rline = nline.replace("\r", "")
-        qline = rline.replace('\"','')
-        dline = repr(qline.strip())
-        data = rline.split(",")
-        
-        route_num = data[0]
-        coor = ""
-        for x in range(1, len(data)):
-            coor += data[x] + ","
-            
-            
-        r =  model.routeCoordinates(
-            route  = route_num,
-            coordinates = coor
-        )
-        k = r.put()
-    return "Complete"
-    
-@app.route('/coordinates')
-def getCoordinates():
-    results = routeCoordinates.query()
-    tempData = []
-    for result in results:
-        datadict = {"route": result.route,"coordinates": result.coordinates}
-        tempData.append(datadict)
-    d={}
-    d["routes"] = tempData;
-    out = json.dumps(d)
-    resp = Response(response=out,status=200,mimetype="application/json")
-    return resp
-    
+      
 @app.route('/coordinates2')
-def getCoordinates2():
+def getCoordinates():
+    results = routeCoordinates.query().order(routeCoordinates.pos_index)
+    routeArrary = []
     tempData = []
-    results = routeCoordinates.query()
     for result in results:
-        result.key.delete()
-            
-    f= open('route_coordinates.txt','r')
-    for line in f.readlines():
-        nline = line.replace("\n", "")
-        rline = nline.replace("\r", "")
-        qline = rline.replace('\"','')
-        dline = repr(qline.strip())
-        data = rline.split(",")
-        
-        route_num = data[0]
-        coor = ""
-        for x in range(1, len(data)):
-            coor += data[x] + ","
-            
-        datadict = {"route": route_num,"coordinates": coor}
+        if result.route not in routeArrary:
+            routeArrary.append(result.route)
+    
+    for route_id in routeArrary:
+        coor = ""        
+        for result in results:
+            if result.route == route_id:
+                coor += result.coorList
+                
+        datadict = {"route": route_id ,"coordinates": coor}
         tempData.append(datadict)
     d={}
     d["routes"] = tempData;
     out = json.dumps(d)
     resp = Response(response=out,status=200,mimetype="application/json")
     return resp
+    
