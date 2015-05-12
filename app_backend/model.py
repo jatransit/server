@@ -15,12 +15,21 @@ class routeCoordinates(ndb.Model):
 class trackedBus(ndb.Model):
     bus_id = ndb.StringProperty() 
     route_id = ndb.StringProperty()
+    origin = ndb.StringProperty()
+    destination = ndb.StringProperty()
+    via = ndb.StringProperty()
+    index = ndb.StringProperty()
     lat = ndb.StringProperty() 
     long = ndb.StringProperty()
     velocity = ndb.StringProperty()
+    direction = ndb.StringProperty()
+    
     
     
 class stop(ndb.Model):
     stop_id = ndb.StringProperty() 
     lat = ndb.StringProperty() 
     long = ndb.StringProperty()
+
+class number(ndb.Model):
+    number = ndb.StringProperty()     

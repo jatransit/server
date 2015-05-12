@@ -27,7 +27,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.transit.realtime.GtfsRealtime;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,18 +39,14 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Random;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class MapActivity extends Activity implements OnMapReadyCallback {
 
     private MapFragment mapFragment;
-    protected int interval  = 20000;
     final String TAG = "JaTransit";
     final String mapType = "JA";
     protected LatLng currentLocation;
     DecimalFormat df = new DecimalFormat("#.##");
-    ScheduledThreadPoolExecutor updater;
     LocationManager locationManager;
 
     MarkerOptions mOption;
@@ -89,6 +84,128 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap map) {
         setupMap(map);
+    }
+
+
+    public void simulateTracking(JSONArray livebuses)
+    {
+        try
+        {
+            for (int i = 0; i < livebuses.length(); i++) {
+                JSONObject jo = (JSONObject) livebuses.get(i);
+
+                String lat = jo.getString("lat");
+                String lon = jo.getString("long");
+                String origin = jo.getString("origin");
+                String via = jo.getString("via");
+                String destination = jo.getString("destination");
+                String velocity = jo.getString("velocity");
+                String bus_id = jo.getString("bus_id");
+                String route_id = jo.getString("route_id");
+                String direction = jo.getString("direction");
+
+                LatLng location = new LatLng(Double.parseDouble(lat), Double.parseDouble(lon));
+
+                boolean found = false;
+                for(TrackedBus bus: buses)
+                {
+                    if(bus.getBusId().equals(bus_id))
+                    {
+                        found = true;
+                        bus.setVelocity(Double.parseDouble(velocity));
+                        bus.getMarker().setTitle("Speed: " + df.format(bus.getVelocity()) + "km/h");
+                        bus.setCurrentLocation(location);
+                        bus.getMarker().setPosition(location);
+                    }
+                }
+
+                if(!found)
+                {
+                    Marker m = mapFragment.getMap().addMarker( mOption.position(location).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_marker)).anchor((float)0.5,(float)0.5));
+                    TrackedBus b = new TrackedBus(bus_id,m,0,location);
+                    b.setVelocity(Double.parseDouble(velocity));
+                    b.getMarker().setTitle("Speed: " + df.format(b.getVelocity()) + "km/h");
+                    buses.add(b);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Log.d(TAG, "onPostExecute Error: " + e.toString());
+        }
+    }
+
+    public void clearMap()
+    {
+        try
+        {
+            mapFragment.getMap().clear();
+        }
+        catch(Exception e)
+        {
+            Log.d(TAG, "Error: " + e.toString());
+        }
+
+    }
+
+    public void drawRoute(ArrayList<LatLng> route)
+    {
+        PolylineOptions pO = new PolylineOptions();
+
+        for(LatLng loc: route)
+        {
+            try
+            {
+                pO.add(loc);
+            }
+            catch(Exception e)
+            {
+                Log.d(TAG, "drawRoute Error: " + e.toString());
+            }
+        }
+        int color = Color.argb(255, rand.nextInt(256) + 128, rand.nextInt(256) + 128, rand.nextInt(256) + 128);
+
+        pO.width(5).color(color);
+        mapFragment.getMap().addPolyline(pO);
+        routeList.add(route);
+
+    }
+
+    public void setupMap(GoogleMap map)
+    {
+        //LatLng homeLoc = new LatLng(42.350, -71.146);
+        LatLng jamhome = new LatLng(18.012,-76.797);
+
+        map.setMyLocationEnabled(true);
+
+        /*mOption = new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_marker));*/
+        mOption = new MarkerOptions();
+        map.getUiSettings().setZoomControlsEnabled(true);
+
+        clearMap();
+
+        timer = new Timer();
+
+        if(mapType.compareTo("JA") == 0 )
+        {
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(jamhome, 13));
+            new JaTransitFeedData().execute("http://server.jatransit.appspot.com/coordinates2");
+
+            timer.scheduleAtFixedRate( new TimerTask() {
+                public void run() {
+                    try
+                    {
+                        //new JATransitLiveFeed().execute("http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb");
+                        new JATransitLiveFeed().execute("http://jatransit.appspot.com/live");
+                    }
+                    catch (Exception e)
+                    {
+                        Log.d(TAG, "JATransitLiveFeed scheduleAtFixedRate Error: " + e.toString());
+                    }
+                }
+            }, 0, 20000);
+        }
     }
 
 
@@ -146,120 +263,6 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
     {
         this.currentLocation = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
     }
-
-
-
-    public void simulateTracking()
-    {
-
-        for(TrackedBus bus: buses)
-        {
-            int locationIndex = bus.getCurrentLocationIndex();
-            locationIndex++;
-            int routeIndex = bus.getRouteIndex();
-
-            if(locationIndex < routeList.get(routeIndex).size())
-            {
-                LatLng loc = (LatLng)routeList.get(routeIndex).get(locationIndex);
-                bus.updateLocation(locationIndex, loc, interval);
-                bus.getMarker().setPosition(loc);
-                bus.getMarker().setTitle("Speed: " + df.format(bus.getVelocity()) + "km/h");
-
-            }
-            else
-            {
-                LatLng loc = (LatLng)routeList.get(routeIndex).get(0);
-                bus.updateLocation(0, loc, interval);
-                bus.getMarker().setPosition(loc);
-            }
-
-        }
-
-    }
-
-    public void clearMap()
-    {
-        try
-        {
-            mapFragment.getMap().clear();
-        }
-        catch(Exception e)
-        {
-            Log.d(TAG, "Error: " + e.toString());
-        }
-
-    }
-
-    public void drawRoute(ArrayList<LatLng> route)
-    {
-        PolylineOptions pO = new PolylineOptions();
-
-        for(LatLng loc: route)
-        {
-            try
-            {
-                pO.add(loc);
-            }
-            catch(Exception e)
-            {
-                Log.d(TAG, "drawRoute Error: " + e.toString());
-            }
-        }
-        int color = Color.argb(255, rand.nextInt(256) + 128, rand.nextInt(256) + 128, rand.nextInt(256) + 128);
-
-        LatLng location = route.get(0);
-
-        int routeIndex = routeList.size();
-
-        Marker m = mapFragment.getMap().addMarker( mOption.position(location).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_marker)).anchor((float)0.5,(float)0.5));
-        TrackedBus b = new TrackedBus(m,routeIndex,0,location);
-        buses.add(b);
-
-        pO.width(5).color(color);
-        mapFragment.getMap().addPolyline(pO);
-
-        routeList.add(route);
-
-    }
-
-    public void setupMap(GoogleMap map)
-    {
-        LatLng homeLoc = new LatLng(42.350, -71.146);
-        LatLng jamhome = new LatLng(18.012,-76.797);
-
-        map.setMyLocationEnabled(true);
-
-        /*mOption = new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_marker));*/
-        mOption = new MarkerOptions();
-        map.getUiSettings().setZoomControlsEnabled(true);
-
-        timer = new Timer();
-
-        if(mapType.compareTo("JA") == 0 )
-        {
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(jamhome, 13));
-            new JaTransitFeedData().execute("http://server.jatransit.appspot.com/coordinates2");
-        }
-        else
-        {
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLoc, 10));
-
-            timer.scheduleAtFixedRate( new TimerTask() {
-                public void run() {
-                    try
-                    {
-                        new MBTAFeedData().execute("http://developer.mbta.com/lib/GTRTFS/Alerts/VehiclePositions.pb");
-                    }
-                    catch (Exception e)
-                    {
-                        Log.d(TAG, "MBTAFeedData scheduleAtFixedRate Error: " + e.toString());
-                    }
-                }
-            }, 0, 20000);
-        }
-    }
-
 
     public void displayToast(String message)
     {
@@ -331,28 +334,9 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
                 Log.d(TAG, "onPostExecute Error: " + e.toString());
             }
 
-            setUpMapUpdater();
-
         }
     }
 
-
-    private void setUpMapUpdater() {
-        updater = new ScheduledThreadPoolExecutor(1);
-        updater.scheduleAtFixedRate(new Runnable() {
-            private Runnable update = new Runnable() {
-                @Override
-                public void run() {
-                    simulateTracking();
-                }
-            };
-
-            @Override
-            public void run() {
-                runOnUiThread(update);
-            }
-        }, 10, 10, TimeUnit.SECONDS);
-    }
 
     private class AppLocationListener implements LocationListener {
 
@@ -373,50 +357,37 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
         public void onStatusChanged(String provider, int status, Bundle extras) {}
     }
 
-    protected class MBTAFeedData extends AsyncTask<String, Void, ArrayList<LatLng>> {
+    protected class JATransitLiveFeed extends AsyncTask<String, Void, JSONArray> {
 
-        protected ArrayList<LatLng> doInBackground(String... urls) {
+        protected JSONArray doInBackground(String... urls) {
             URL url;
-            GtfsRealtime.FeedMessage feed;
-
-            ArrayList<LatLng>  buses = new ArrayList<>();
+            JSONArray buses = new JSONArray();
             try
             {
                 url = new URL(urls[0]);
-                feed = GtfsRealtime.FeedMessage.parseFrom(url.openStream());
-                int i = 0;
-                for (GtfsRealtime.FeedEntity entity : feed.getEntityList()) {
-                    //Log.d(TAG, "Loop");
-                    if (entity.hasVehicle()) {
-                        buses.add(new LatLng(entity.getVehicle().getPosition().getLatitude(),entity.getVehicle().getPosition().getLongitude()));
-                    }
+
+                BufferedReader bufferedReader =
+                        new BufferedReader(new InputStreamReader(
+                                url.openStream()));
+                String next;
+                while ((next = bufferedReader.readLine()) != null){
+                    JSONObject ja = new JSONObject(next);
+
+                    buses = ja.getJSONArray("trackedBus");
                 }
             }
             catch (Exception e) {
-                Log.d(TAG, "Error: " + e.toString());
+                Log.d(TAG, "doInBackground Error: " + e.toString());
             }
-
             return buses;
         }
 
+
         /** The system calls this to perform work in the UI thread and delivers
          * the result from doInBackground() */
-        protected void onPostExecute(ArrayList<LatLng> locations) {
+        protected void onPostExecute(JSONArray buses) {
 
-            clearMap();
-            for(LatLng loc: locations)
-            {
-                try
-                {
-                    mapFragment.getMap().addMarker(mOption.position(loc));
-                }
-                catch(Exception e)
-                {
-                    Log.d(TAG, "Error: " + e.toString());
-                }
-            }
-
-
+            simulateTracking(buses);
         }
     }
 

@@ -16,6 +16,16 @@ handlers:
   static_files: \1
   upload: (.*\.(appcache|manifest))
   expiration: "0m"
+  
+- url:  /tasks/test_simulation/
+  secure: always
+  script: main.app
+  login: admin
+  
+- url:  /tasks/simulate/
+  secure: always
+  script: main.app
+  login: admin
  
 - url: /p/
   static_dir: static/
@@ -24,15 +34,14 @@ handlers:
 - url: /favicon.ico
   static_files: static/images/favicon.ico
   upload: static/images/favicon.ico  
-
+  
 - url: /robots.txt
   static_files: static/robots.txt
   upload: static/robots.txt
 
-
-
 - url: .*  # This regex directs all routes to main.app
   script: main.app
+  
   
 libraries:
 - name: jinja2

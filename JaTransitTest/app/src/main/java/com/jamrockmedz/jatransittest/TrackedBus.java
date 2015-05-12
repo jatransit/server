@@ -11,17 +11,29 @@ import com.google.android.gms.maps.model.Marker;
 public class TrackedBus {
     Marker marker;
     int currentLocationIndex;
-    int routeIndex;
     LatLng currentLocation;
     double velocity;
+    String origin;
+    String via;
+    String destination;
+    String busId;
 
-    TrackedBus(Marker marker, int routeIndex, int locationIndex, LatLng location)
+    TrackedBus(String busId, Marker marker, int locationIndex, LatLng location)
     {
         this.marker = marker;
         this.currentLocationIndex = locationIndex;
         this.currentLocation = location;
-        this.routeIndex = routeIndex;
         this.velocity = 0;
+        this.busId = busId;
+    }
+
+
+    public LatLng getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public void setCurrentLocation(LatLng currentLocation) {
+        this.currentLocation = currentLocation;
     }
 
     public void updateLocation(int locationIndex, LatLng location, int interval)
@@ -52,10 +64,6 @@ public class TrackedBus {
     {
         return this.currentLocationIndex;
     }
-    public int getRouteIndex()
-    {
-        return this.routeIndex;
-    }
     public Marker getMarker()
     {
         return this.marker;
@@ -80,4 +88,12 @@ public class TrackedBus {
 
     }
 
+
+    public String getBusId() {
+        return busId;
+    }
+
+    public void setBusId(String busId) {
+        this.busId = busId;
+    }
 }
